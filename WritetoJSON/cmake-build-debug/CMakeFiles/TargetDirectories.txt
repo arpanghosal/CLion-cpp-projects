@@ -1,0 +1,3 @@
+/Users/arpanghosal/Software_tutorials/gitprojects/CLion-cpp-projects/WritetoJSON/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/arpanghosal/Software_tutorials/gitprojects/CLion-cpp-projects/WritetoJSON/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/arpanghosal/Software_tutorials/gitprojects/CLion-cpp-projects/WritetoJSON/cmake-build-debug/CMakeFiles/WriteToJson.dir
