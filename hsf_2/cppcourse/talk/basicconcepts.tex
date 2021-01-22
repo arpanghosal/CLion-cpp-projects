@@ -1,0 +1,1127 @@
+\section[base]{Langage basics}
+
+\subsection[Core]{Core syntax and types}
+
+\begin{frame}[fragile]
+  \frametitlegb{Hello World}
+  \begin{cppcode}
+    #include <iostream>
+
+    // This is a function
+    void print(int i) {
+      std::cout << "Hello, world " << i << std::endl;
+    }
+
+    int main(int argc, char** argv) {
+      int n = 3;
+      for (int i = 0; i < n; i++) {
+        print(i);
+      }
+      return 0;
+    }
+  \end{cppcode}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Comments}
+  \begin{cppcode}
+    // simple comment for integer declaration
+    int i;
+
+    /* multiline comment
+     * in case we need to say more
+     */
+    double d;
+
+    /**
+     * Best choice : doxygen compatible comments
+     * \fn bool isOdd(int i)
+     * \brief checks whether i is odd
+     * \param i input
+     * \return true if i is odd, otherwise false
+     */
+    bool isOdd(int i);
+  \end{cppcode}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Basic types(1)}
+  \begin{cppcode}
+    bool b = true;            // boolean, true or false
+    
+    char c = 'a';             // 8 bits ASCII char
+    char* s = "a C string";   // array of chars ended by \0
+    string t = "a C++ string";// class provided by the STL
+
+    char c = -3;              // 8 bits signed integer
+    unsigned char c = 4;      // 8 bits unsigned integer
+
+    short int s = -444;       // 16 bits signed integer
+    unsigned short s = 444;   // 16 bits unsigned integer
+    short s = -444;           // int is optional
+  \end{cppcode}
+\end{frame}
+\begin{frame}[fragile]
+  \frametitlegb{Basic types(2)}
+  \begin{cppcode}
+    int i = -123456;          // 32 bits signed integer
+    unsigned int i = 1234567; // 32 bits signed integer
+
+    long l = 0L               // 32 or 64 bits (ptr size)
+    unsigned long l = 0UL;    // 32 or 64 bits (ptr size)
+
+    long long ll = 0LL;       // 64 bits signed integer
+    unsigned long long l = 0ULL; // 64 bits unsigned integer
+
+    float f = 1.23f;          // 32 (23+7+1) bits float
+    double d = 1.23E34;       // 64 (52+11+1) bits float
+  \end{cppcode}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Portable numeric types}
+  \alert{One needs to include specific header}
+  \begin{cppcode}
+    #include <cstdint>
+    
+    int8_t c = -3;     // 8 bits, replaces char
+    uint8_t c = 4;     // 8 bits, replaces unsigned char
+
+    int16_t s = -444;  // 16 bits, replaced short
+    uint16_t s = 444;  // 16 bits, replaced unsigned short
+
+    int32_t s = -0674; // 32 bits, replaced int
+    uint32_t s = 0674; // 32 bits, replaced unsigned int
+
+    int64_t s = -0x1bc;// 64 bits, replaced long long
+    uint64_t s = 0x1bc;// 64 bits, replaced unsigned long long
+    \end{cppcode}
+\end{frame}
+
+\subsection[Ptr]{Arrays and Pointers}
+
+\begin{frame}[fragile]
+  \frametitlegb{Static arrays}
+  \begin{cppcode}
+    int ai[4] = {1,2,3,4};
+    int ai[] = {1,2,3,4};  // identical
+    
+    char ac[3] = {'a','b','c'};   // char array
+    char ac[4] = "abc";           // valid C string
+    char ac[4] = {'a','b','c',0}; // same valid string
+    
+    int i = ai[2];  // i = 3
+    char c = ac[8]; // at best garbage, may segfault
+    int i = ai[4];  // also garbage !
+  \end{cppcode}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Pointers}
+  \begin{multicols}{2}
+    \begin{cppcode*}{gobble=2}
+      int i = 4;
+      int *pi = &i;
+      int j = *pi + 1;
+      
+      int ai[] = {1,2,3};
+      int *pai = ai;
+      int *paj = pai + 1;
+      int k = *paj + 1;
+      
+      // not compiling
+      int *pak = k;
+      
+      // seg fault !
+      int *pak = (int*)k;
+      int l = *pak;
+    \end{cppcode*}
+    \onslide<2->{
+      \begin{tikzpicture}
+        \memorystack[size x=3cm,word size=1,nb blocks=11]
+        \onslide<3-> {\memorypush{$i = 4$}}
+        \onslide<4-> {\memorypushpointer[pi =]{1}}
+        \onslide<5-> {\memorypush{$j = 5$}}
+        \onslide<6-> {\memorypush{$1$}}
+        \onslide<6-> {\memorypush{$2$}}
+        \onslide<6-> {\memorypush{$3$}}
+        \onslide<6-> {\memorypushpointer[ai =]{4}}
+        \onslide<7-> {\memorypushpointer[pai =]{4}}
+        \onslide<8-> {\memorypushpointer[paj =]{5}}
+        \onslide<9-> {\memorypush{$k = 3$}}
+        \onslide<10-> {\memorypush{$pak = 3$}}
+        \onslide<10-> {\draw[\stackcolor!80,->] (stack11-1.west) -- +(-0.5cm,0)
+          node [anchor=east] {??};}
+      \end{tikzpicture}
+    }
+  \end{multicols}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitleii{nullptr}
+  \begin{block}{Finally a \cpp~NULL pointer}
+    \begin{itemize}
+    \item works like 0 or NULL in standard cases
+    \item triggers compilation error when mapped to integer
+    \end{itemize}
+  \end{block}
+  \pause
+  \begin{exampleblock}{Example code}
+    \begin{cppcode*}{}
+      void* vp = nullptr;
+      int* ip = nullptr;
+      int i = NULL;      // OK -> bug ?
+      int i = nullptr;   // ERROR
+    \end{cppcode*}
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Dynamic Arrays}
+  \begin{cppcode}
+    #include <cstdlib>
+    #include <cstring>
+
+    int *bad;          // pointer to random address
+    int *ai = nullptr; // better. Can be tested
+
+    // allocate array of 10 ints (not initialized)
+    ai = (int*) malloc(10*sizeof(int));
+    // and set them to 0
+    memset(ai, 0, 10*sizeof(int));
+
+    // Both in one go
+    ai = (int*) calloc(10, sizeof(int));
+    
+    // liberate memory
+    free(ai);
+  \end{cppcode}
+\end{frame}
+
+\subsection[Op]{Operators}
+
+\begin{frame}[fragile]
+  \frametitlegb{Operators(1)}
+  \begin{block}{Binary \& Assignment Operators}
+    \begin{cppcode*}{}
+      int i = 1 + 4 - 2;  // 3
+      i *= 3;             // 9
+      i /= 2;             // 4
+      i = 23 % i;         // modulo => 3
+    \end{cppcode*}
+  \end{block}
+  \pause
+  \begin{block}{Increment / Decrement \uncover<3->{\hfill \alert{\bf Use wisely}}}
+    \begin{cppcode*}{}
+      int i = 0; i++; // i = 1
+      int j = ++i;    // i = 2, j = 2
+      int k = i++;    // i = 3, k = 2
+      int l = --i;    // i = 2, l = 2
+      int m = i--;    // i = 1, m = 2
+    \end{cppcode*}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Operators(2)}
+  \begin{block}{Bitwise and Assignment Operators}
+    \begin{cppcode*}{}
+      int i = 0xee & 0x55;  // 0x44
+      i |= 0xee;            // 0xee
+      i ^= 0x55;            // 0xbb
+      int j = ~0xee;        // 0xffffff11
+      int k = 0x1f << 3;    // 0x78
+      int l = 0x1f >> 2;    // 0x7
+    \end{cppcode*}
+  \end{block}
+  \pause
+  \begin{block}{Boolean Operators}
+    \begin{cppcode*}{}
+      bool a = true;
+      bool b = false;
+      bool c = a && b;    // false
+      bool d = a || b;    // true
+      bool e = !d;        // false
+    \end{cppcode*}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Operators(3)}
+  \begin{block}{Comparison Operators}
+    \begin{cppcode*}{}
+      bool a = (3 == 3);  // true
+      bool b = (3 != 3);  // false
+      bool c = (4 < 4);   // false
+      bool d = (4 <= 4);  // true
+      bool e = (4 > 4);   // false
+      bool f = (4 >= 4);  // true
+    \end{cppcode*}
+  \end{block}
+  \pause
+  \begin{block}{Precedences \uncover<3->{\hfill \alert{\bf Don't use}\uncover<4->{\color{green} \bf\ - use parenthesis}}}
+    \begin{cppcode*}{linenos=false}
+      c &= 1+(++b)|(a--)*4%5^7; // ???
+    \end{cppcode*}
+  \end{block}
+\end{frame}
+
+\subsection[NS]{Scopes / namespaces}
+
+\begin{frame}[fragile]
+  \frametitlegb{Scope}
+  \begin{block}{Definition}
+    Portion of the source code where a given name is valid \\
+    Typically :
+    \begin{itemize}
+    \item simple block of code, within \mintinline{cpp}{{}}
+    \item function, class, namespace
+    \item source file for global declarations
+    \end{itemize}
+  \end{block}
+  \begin{exampleblock}{Example}
+    \begin{cppcode*}{}
+      { int a;
+        { int b;
+        } // end of b scope
+      } // end of a scope
+    \end{cppcode*}
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Namespaces}
+  \begin{itemize}
+  \item Namespaces allow to segment your code to avoid name clashes
+  \item They can be embedded to create hierarchies (separator is '::')
+  \end{itemize}
+  \begin{multicols}{2}
+    \begin{cppcode*}{gobble=2}
+      int a;
+      namespace n {
+        int a;   // no clash
+      }
+      namespace p {
+        int a;   // no clash
+        namespace inner {
+          int a; // no clash
+        }
+      }
+      int f() {
+        n::a = 2;
+      }
+    \end{cppcode*}
+    \columnbreak
+    \begin{cppcode*}{gobble=2,firstnumber=14}
+      namespace p {
+        int f() {
+          p::a = 2;
+          a = 2;  //same as above
+          p::inner::a = 4;
+          inner::a = 4;
+          n::a = 5;
+        }
+      }
+      using namespace p::inner;
+      int g() {
+        a = 3; // using p::inner
+      }
+  \end{cppcode*}
+  \end{multicols}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitleit{Nested namespaces}
+  Easier way to declare nested namespaces
+  \begin{alertblock}{\cpp14}
+    \begin{cppcode*}{}
+      namespace A {
+        namespace B {
+          namespace C {
+            //...
+          }
+        }
+      }
+    \end{cppcode*}
+  \end{alertblock}
+  \begin{exampleblock}{\cpp17}
+    \begin{cppcode*}{}
+      namespace A::B::C {
+        //...
+      }
+    \end{cppcode*}
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Anonymous namespaces}
+  \begin{exampleblock}{A namespace without a name !}
+    \begin{cppcode*}{}
+      namespace {
+        int localVar;
+      }
+    \end{cppcode*}
+  \end{exampleblock}
+  \begin{block}{Purpose}
+    \begin{itemize}
+    \item groups a number of declarations
+    \item visible in the current translation unit
+    \item but not reusable outside
+    \item allows much better compiler optimizations and checking
+      \begin{itemize}
+      \item e.g. unused function warning
+      \item context dependent optimizations
+      \end{itemize}
+    \end{itemize}
+  \end{block}
+  \begin{alertblock}{Deprecates static}
+    \begin{cppcode*}{gobble=2}
+      static int localVar; // equivalent C code
+    \end{cppcode*}
+  \end{alertblock}
+\end{frame}
+
+\subsection[Compound]{Compound data types}
+
+\begin{frame}[fragile]
+  \frametitlegb{struct}
+  \begin{mdframed}[style=simplebox]
+    \center ``members'' grouped together under one name
+  \end{mdframed}
+  \begin{multicols}{2}
+    \begin{cppcode*}{gobble=2}
+      struct Individual {
+        unsigned char age;
+        float weight;
+      };
+
+      Individual student;
+      student.age = 25;
+      student.weight = 78.5;
+
+      Individual teacher = {
+        45, 67
+      };
+    \end{cppcode*}
+    \columnbreak
+    \begin{cppcode*}{gobble=2,firstnumber=14}
+      Individual *studentPtr =
+        &student;
+      studentPtr->age = 25;
+    \end{cppcode*}
+    \pause
+    \vfill
+    \hspace{-1.5cm}
+    \begin{tikzpicture}
+      \memorystack[nb blocks=5]
+      \onslide<3-> {
+        \memorypush{25,?,?,?}
+        \memorypushwidevalue{78.5}
+        \memorystruct{1}{2}{\scriptsize student}
+      }
+      \onslide<4-> {
+        \memorypush{45,?,?,?}
+        \memorypushwidevalue{67.0}
+        \memorystruct{3}{4}{\scriptsize teacher}
+      }
+    \end{tikzpicture}
+    \vfill \null
+  \end{multicols}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{union}
+  \begin{mdframed}[style=simplebox]
+    \center ``members'' packed together at same memory location
+  \end{mdframed}
+  \begin{multicols}{2}
+    \begin{cppcode*}{gobble=2}
+      union Duration {
+        int seconds;
+        short hours;
+        char days;
+      };
+
+      Duration d1, d2, d3;
+      d1.seconds = 259200;
+      d2.hours = 72;
+      d3.days = 3;
+      d1.days = 3; // d1.seconds overwritten
+      int a = d1.seconds; // d1.seconds is garbage
+    \end{cppcode*}
+    \pause
+    \columnbreak
+    \null \vfill
+    \onslide<2->{
+      \begin{tikzpicture}
+        \memorystack[word size=1,nb blocks=4]
+        \visible<3-5>{\memorypush{d1.seconds=259200}}
+        \onslide<4->{\memorypush{d2.hours=72}}
+        \onslide<5->{\memorypush{d3.days=3}}
+        \memorygoto{1}
+        \onslide<6->{\memorypush{d1.days=3}}
+      \end{tikzpicture}
+    }
+    \vfill \null
+  \end{multicols}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Enums}
+  \begin{multicols}{2}
+    \begin{cppcode*}{gobble=2}
+      enum VehicleType {
+        BIKE,  // 0
+        CAR,   // 1
+        BUS,   // 2
+      };
+      VehicleType t = CAR;
+    \end{cppcode*}
+    \columnbreak
+    \begin{cppcode*}{gobble=2}
+      enum VehicleType {
+        BIKE = 3,
+        CAR = 5,
+        BUS = 7,
+      };
+      VehicleType t2 = BUS;
+    \end{cppcode*}
+  \end{multicols}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitleii{Scoped enumeration, aka enum class}
+  \begin{block}{Same syntax as enum, with scope}
+    \begin{cppcode*}{}
+      enum class VehicleType { Bus, Car };
+      VehicleType t = VehicleType::Car;
+    \end{cppcode*}
+  \end{block}
+  \pause
+  \begin{exampleblock}{Only advantages}
+    \begin{itemize}
+    \item scoping avoids name clashes
+    \item strong typing, no automatic conversion to int
+    \end{itemize}
+    \small
+    \begin{cppcode*}{}
+      enum VType { Bus, Car }; enum Color { Red, Blue };
+      VType t = Bus;
+      if (t == Red) {  // We do enter !  }
+      int a = 5 * Car; // Ok, a = 5
+      
+      enum class VT { Bus, Car }; enum class Col { Red, Blue };
+      VT t = VT::Bus;
+      if (t == Col::Red) { // Compiler error }
+      int a = t * 5;       // Compiler error
+    \end{cppcode*}
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{More sensible example}
+  \begin{multicols}{2}
+    \begin{cppcode*}{gobble=2}
+      enum class ShapeType {
+        Circle,
+        Rectangle
+      };
+      
+      struct Rectangle {
+        float width;
+        float height;
+      };
+    \end{cppcode*}
+    \columnbreak
+    \pause
+    \begin{cppcode*}{gobble=2,firstnumber=10}
+      struct Shape {
+        ShapeType type;
+        union { 
+          float radius;
+          Rectangle rect;
+        };
+      };
+    \end{cppcode*}
+  \end{multicols}
+  \pause
+  \begin{multicols}{2}
+    \begin{cppcode*}{gobble=2,firstnumber=17}
+      Shape s;
+      s.type =
+        ShapeType::Circle;
+      s.radius = 3.4;
+      
+    \end{cppcode*}
+    \columnbreak
+    \begin{cppcode*}{gobble=2,firstnumber=20}
+      Shape t;
+      t.type =
+        Shapetype::Rectangle;
+      t.rect.width = 3;
+      t.rect.height = 4;
+    \end{cppcode*}
+  \end{multicols}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{typedef and using \hfill \cpp98 / \cpp11}
+  Ways to create type aliases
+  \begin{alertblock}{\cpp98}
+    \begin{cppcode*}{gobble=2}
+      typedef uint64_t myint;
+      myint toto = 17;
+    \end{cppcode*}
+  \end{alertblock}
+  \begin{exampleblock}{\cpp11}
+    \begin{cppcode*}{gobble=2}
+      using myint = uint64_t;
+      myint toto = 17;
+
+      template <typename T> using myvec = std::vector<T>;
+      myvec<int> titi;
+    \end{cppcode*}
+  \end{exampleblock}
+\end{frame}
+
+\subsection[$f()$]{Functions}
+
+\begin{frame}[fragile]
+  \frametitlegb{Functions}
+  \begin{multicols}{2}
+    \begin{cppcode*}{gobble=2}
+      // with return type
+      int square(int a) {
+        return a * a;
+      }
+
+      // multiple parameters
+      int mult(int a,
+               int b) {
+        return a*b;
+      }
+    \end{cppcode*}
+    \columnbreak
+    \begin{cppcode*}{gobble=2,firstnumber=11}
+      // no parameter
+      void hello() {
+        printf("Hello World");
+      }
+
+      // no return
+      void log(char* msg) {
+        printf("%s", msg);
+      }
+    \end{cppcode*}
+  \end{multicols}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Parameter are passed by value}
+  \begin{multicols}{2}
+    \begin{cppcode*}{gobble=2}
+      struct BigStruct {...};
+      BigStruct s;
+      
+      // parameter by value
+      void printBS(BigStruct p) {
+        ...
+      }
+      printBS(s); // copy
+      
+      // parameter by pointer
+      void printBSp(BigStruct *q) {
+        ...
+      }
+      printBSp(&s); // no copy
+    \end{cppcode*}
+    \columnbreak
+    \null \vfill
+    \onslide<2->{
+      \begin{tikzpicture}
+        \memorystack[word size=1, nb blocks=7, size x=3cm]
+        \onslide<3-> {
+          \memorypush{s1}
+          \memorypush{...}
+          \memorypush{sn}
+          \memorystruct{1}{3}{s}
+        }
+        \onslide<4> {
+          \memorypush{p1 = s1}
+          \memorypush{...}
+          \memorypush{pn = sn}
+          \memorystruct{4}{6}{p}
+        }
+        \memorygoto{4}
+        \onslide<6> {
+          \memorypushpointer[q =]{1}
+        }
+      \end{tikzpicture}
+    }
+    \vfill \null
+  \end{multicols}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Parameter are passed by value}
+  \begin{multicols}{2}
+    \begin{cppcode*}{gobble=2}
+      struct SmallStruct {int a};
+      SmallStruct s = {.a = 1};
+      
+      void changeSS(SmallStruct p) {
+        p.a = 2;
+      }
+      changeSS(s);
+      // s.a = 1
+      
+      void changeSS2(SmallStruct *q) {
+        q->a = 2;
+      }
+      changeSS2(&s);
+      // s.a = 2
+    \end{cppcode*}
+    \columnbreak
+    \null \vfill
+    \onslide<2->{
+      \begin{tikzpicture}
+        \memorystack[word size=1, nb blocks=3, size x=3cm]
+        \onslide<3-7> {
+          \memorypush{s.a = 1}
+        }
+        \onslide<4> {
+          \memorypush{p.a = 1}
+        }
+        \memorygoto{2}
+        \onslide<5> {
+          \memorypush{p.a = 2}
+        }
+        \memorygoto{2}
+        \onslide<7-> {
+          \memorypushpointer[q =]{1}
+        }
+        \memorygoto{1}
+        \onslide<8> {
+          \memorypush{s.a = 2}
+        }
+      \end{tikzpicture}
+    }
+    \vfill \null
+  \end{multicols}
+\end{frame}
+
+\subsection[Refs]{References}
+
+\begin{frame}[fragile]
+  \frametitlegb{Value, pointers and references}
+  \begin{block}{Different ways to pass arguments to a function}
+    \begin{itemize}
+    \item by default arguments are passed by value
+    \item pointers can be used to avoid copies
+    \item references are also available and are preferred
+    \end{itemize}
+  \end{block}
+  \pause
+  \begin{block}{Syntax}
+    \begin{cppcode}
+      struct T {...}; T a;
+      void func   (T value); f(a);   // by value
+      void funcPtr(T *value); f(&a); // pointer
+      void funcRef(T &value); f(a);  // by reference
+    \end{cppcode}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Value versus pointers/reference}
+  \begin{block}{When passing by value}
+    \begin{itemize}
+    \item a copy is created
+    \item making the original argument unmodifiable (aka const)
+    \item efficient for small types, e.g. numbers
+    \end{itemize}
+  \end{block}
+  \begin{block}{When passing by pointer/reference}
+    \begin{itemize}
+    \item no copy of your argument
+    \item in the back only a memory address is copied
+    \item argument can be modified (unless you use constness, see later)
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Pointers vs References}
+  \begin{block}{Specificities of reference}
+    \begin{itemize}
+    \item natural syntax
+    \item will never be NULL
+    \item thus cannot reference temporary object
+    \end{itemize}
+  \end{block}
+  \begin{block}{Advantages of pointers}
+    \begin{itemize}
+    \item can be NULL
+    \item clearly indicates that argument may be modified
+    \end{itemize}
+  \end{block}
+  \pause
+  \begin{alertblock}{Good practice}
+    \begin{itemize}
+      \item Always use references when you can
+      \item Consider that a reference will be modified
+      \item Use constness when it's not the case
+    \end{itemize}
+  \end{alertblock}
+\end{frame}
+
+\subsection[Control]{Control instructions}
+
+\begin{frame}[fragile]
+  \frametitlegb{Control instructions : if}
+  \begin{block}{if syntax}
+    \begin{cppcode*}{}
+      if (condition1) {
+        Instructions1;
+      } else if (condition2) {
+        Instructions2;
+      } else {
+        Instructions3;
+      } 
+    \end{cppcode*}
+    \begin{itemize}
+      \item {\it else} and {\it else if} part are optional
+      \item {\it else if} part can be repeated
+      \item braces are optional if there is a single instruction
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Control instructions : if}
+  \begin{exampleblock}{Practical example}
+    \begin{cppcode*}{}
+      int collatz(int a) {
+        if (a <= 0) {
+          std::cout << "not supported";
+          return 0;
+        } else if (a == 1) {
+          return 1;
+        } else if (a%2 == 0) {
+          return collatz(a/2);
+        } else {
+          return collatz(3*a+1);
+        }
+      }
+    \end{cppcode*}
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Control instructions : conditional operator}
+  \begin{block}{Syntax}
+    \begin{cppcode*}{linenos=false}
+      test ? expression1 : expression2;
+    \end{cppcode*}
+    \vspace{-0.3cm}
+    \begin{itemize}
+      \item if test is {\it true} expression1 is returned
+      \item else expression 2 is returned
+    \end{itemize}
+  \end{block}
+  \pause
+  \begin{exampleblock}{Practical example}
+    \begin{cppcode*}{}
+      int collatz(int a) {
+        return a==1 ? 1 : collatz(a%2 ? 3*a+1 : a/2);
+      }
+    \end{cppcode*}
+  \end{exampleblock}
+  \pause
+  \begin{alertblock}{Do not abuse}
+    explicit ifs are easier to read \\
+    to be used only when obvious and not nested
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Control instructions : switch}
+  \begin{block}{Syntax}
+    \begin{cppcode*}{gobble=2}
+      switch(identifier) {
+        case c1 : instructions1; break;
+        case c2 : instructions2; break;
+        case c3 : instructions3; break;
+        ...
+        default : instructiond; break;
+      }
+    \end{cppcode*}
+    \begin{itemize}
+      \item {\it break} is not mandatory but...
+      \item cases are entry points, not independant pieces
+      \item execution carries on with the next case if no {\it break} is present !
+      \item {\it default} may be omitted
+    \end{itemize}
+  \end{block}
+  \pause
+  \begin{alertblock}{Use break}
+    Do not try to make use of non breaking cases
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Control instructions : switch}
+  \begin{exampleblock}{Practical example}
+    \begin{cppcode*}{}
+      enum Lang { FRENCH, GERMAN, ENGLISH, OTHER };
+      ...
+      switch (language) {
+      case FRENCH:
+        printf("Bonjour");
+        break;
+      case GERMAN:
+        printf("Guten tag");
+        break;
+      case ENGLISH:
+        printf("Good morning");
+        break;
+      default:
+        printf("I do not talk your langage");
+      }
+    \end{cppcode*}
+  \end{exampleblock}
+\end{frame}
+
+\AtBeginEnvironment{minted}{\renewcommand{\fcolorbox}[4][]{#4}}
+
+\begin{frame}[fragile]
+  \frametitleit{\texttt{[[fallthrough]]} attribute}
+  \begin{alertblock}{\cpp14}
+    \begin{cppcode}
+      switch (c) {
+        case 'a':
+          f(); // Warning emitted
+        case 'c':
+          h();
+      }
+    \end{cppcode}
+  \end{alertblock}
+  \begin{exampleblock}{\cpp17}
+    \begin{cppcode*}{}
+      switch (c) {
+        case 'a':
+          f();
+          [[fallthrough]]; // Warning suppressed
+        case 'c':
+          h();
+      }
+    \end{cppcode*}
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitleit{init-statements for if and switch}
+  Allows to simplify if and switch statements
+  \begin{alertblock}{\cpp14}
+    \begin{cppcode*}{}
+      Value val = GetValue();
+      if (condition(val)) {
+        // on success
+      } else {
+        // on false...
+      }
+    \end{cppcode*}
+  \end{alertblock}
+  \begin{exampleblock}{\cpp17}
+    \begin{cppcode*}{}
+      if (Value val = GetValue(); condition(val)) {
+        // on success
+      } else {
+        // on false...
+      }
+    \end{cppcode*}
+    \vspace{-.1cm}
+    val is visible only inside the if and else statements
+  \end{exampleblock}  
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Control instructions : for loop}
+  \begin{block}{for loop syntax}
+    \begin{cppcode*}{}
+      for(initializations; condition; increments) {
+        instructions;
+      }
+    \end{cppcode*}
+    \vspace{-0.2cm}
+    \begin{itemize}
+      \item initializations and increments are comma separated
+      \item initializations can contain declarations
+      \item braces are optional if there is a single instruction
+    \end{itemize}
+  \end{block}
+  \pause
+  \begin{exampleblock}{Practical example}
+    \begin{cppcode*}{}
+      for(int i = 0, j = 0 ; i < 10 ; i++, j = i*i) {
+        std::cout << i << "^2 is " << j << "\n";
+      }
+    \end{cppcode*}
+  \end{exampleblock}
+  \pause
+  \begin{alertblock}{Do not abuse the syntax}
+    The for statement should fit in 1-3 lines
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitleii{Range based loops}
+  \begin{block}{Reason of being}
+    \begin{itemize}
+    \item simplifies loops tremendously
+    \item especially with STL containers
+    \end{itemize}
+  \end{block}
+  \begin{block}{Syntax}
+    \begin{cppcode*}{}
+      for ( type iteration_variable : container ) {
+        // body using iteration_variable
+      }
+    \end{cppcode*}
+  \end{block}
+  \begin{exampleblock}{Example code}
+    \begin{cppcode*}{}
+      int v[4] = {1,2,3,4};
+      int sum = 0;
+      for (int a : v) { sum += a; }
+    \end{cppcode*}
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Control instructions : while loop}
+  \begin{block}{while loop syntax}
+    \begin{cppcode*}{}
+      while(condition) {
+        instructions;
+      }
+      do {
+        Instructions;
+      } while(condition);
+    \end{cppcode*}
+    \vspace{-0.3cm}
+    \begin{itemize}
+      \item braces are optional if there is a single instruction
+    \end{itemize}
+  \end{block}
+  \pause
+  \begin{exampleblock}{Practical example}
+    \begin{cppcode*}{}
+      while (n != 1)
+        if (0 == n%2) n /= 2; 
+        else n = 3 * n + 1;
+    \end{cppcode*}
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Control instructions : commands}
+  \begin{block}{control commands}
+    \begin{description}
+    \item[break] goes out of the loop
+    \item[continue] goes immediately to next iteration
+    \item[return] goes out of current function
+    \end{description}
+  \end{block}
+  \pause
+  \begin{exampleblock}{Practical example}
+    \begin{cppcode*}{}
+      while (1) {
+        if (n == 1) break;
+        if (0 == n%2) {
+          std::cout << n << "\n";
+          n /= 2;
+          continue;
+        }
+        n = 3 * n + 1;
+      }
+    \end{cppcode*}
+  \end{exampleblock}
+\end{frame}
+
+\subsection[.h]{Headers and interfaces}
+
+\begin{frame}[fragile]
+  \frametitlegb{Headers and interfaces}
+  \begin{block}{Interface}
+    Set of declarations defining some functionnality
+    \begin{itemize}
+    \item defined in a ``header file''
+    \item no implementation defined
+    \end{itemize}
+  \end{block}
+  \begin{block}{Header : hello.hpp}
+    \begin{cppcode*}{linenos=false}
+      void printHello();
+    \end{cppcode*}
+  \end{block}
+  \begin{block}{Usage : myfile.cpp}
+    \begin{cppcode*}{}
+      #include "hello.hpp"
+      int main() {
+        printHello();
+      }
+    \end{cppcode*}  
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitlegb{Preprocessor}
+  \begin{cppcode}
+    // file inclusion
+    #include "hello.hpp"
+    // macros
+    #define MY_GOLDEN_NUMBER 1746
+    // compile time decision
+    #ifdef USE64BITS
+      typedef uint64_t myint;
+    #else
+      typedef uint32_t myint;
+    #endif
+  \end{cppcode}
+  \pause
+  \begin{block}{Use only in very restricted cases}
+    \begin{itemize}
+    \item include of headers
+    \item hardcoded constants before \cpp11
+    \item portability necessity
+    \end{itemize}
+  \end{block}
+\end{frame}
+\subsection[auto]{Auto keyword}
+
+\begin{frame}[fragile]
+  \frametitleii{Auto keyword}
+  \begin{block}{Reason of being}
+    \begin{itemize}
+    \item many type declarations are redundant
+    \item and lead to compiler error if you mess up
+    \end{itemize}
+    \begin{cppcode*}{}
+      std::vector<int> v;
+      int a = v[3];
+      int b = v.size();  // bug ? unsigned to signed
+    \end{cppcode*}
+  \end{block}
+  \pause
+  \begin{block}{Practical usage}
+    \begin{cppcode*}{}
+      std::vector<int> v;
+      auto a = v[3];
+      auto b = v.size();
+      int sum{0};
+      for (auto n : v) { sum += n; }
+    \end{cppcode*}
+  \end{block}
+\end{frame}
+
