@@ -1,0 +1,15 @@
+Advantages of templates:
+
+    Code reuse: With templates, you can write a single function that can work with multiple data types, which can lead to more efficient and cleaner code.
+
+    Type safety: Templates ensure that the correct type of data is being passed to the function, which can help prevent type mismatches and other errors.
+
+    Performance: Generated code from templates can be as efficient as hand-written code, and the compiler can optimize the code to take advantage of specific properties of the data type.
+
+Advantages of function overloading:
+
+    Readability: Function overloading can make your code more readable by making it clear what the function does and what data types it can work with.
+
+    Flexibility: Function overloading allows you to write separate implementations for different data types, which can lead to more specialized and efficient code.
+
+    Compatibility: Function overloading is supported by older C++ compilers and can be used in a wider range of code, while templates are a more recent feature and may not be available in older compilers.
